@@ -16,10 +16,12 @@ int scan(char * devname){
 	CHECK(set_if_down(sk),res,err);
 	CHECK(setmac(sk,mac,sizeof(mac)),res,err);
 	CHECK(setpipes(sk,0x1),res, err);
+	CHECK(getpipes(sk,&ch),res,err);
+	if(ch!=0x1)printf("set-get pipes not consistent.")
 	for(ch=0;ch<127;++ch){
 		CHECK(setchannel(sk,ch),res,err);
 		CHECK(set_if_up(sk),res,err);
-		sleep(2);
+		sleep(1);
 		CHECK(getrpd(sk,rpd+ch),res,err);
 		CHECK(set_if_down(sk),res,err);
 	}
