@@ -9,7 +9,8 @@ int scan(char * devname){
 	unsigned char mac[14]={0x7a,0x7a,0x7a,0x7a,0x7a,
 			 0x5b,0x5b,0x5b,0x5b,0x5b,
 			 0x3c,0x6d,0x9e,0x5e};
-	int ch,res;
+	int res;
+	unsigned char ch;
 	struct sockdata *sk=nrf_socket(devname);
 	if(!sk)return -1;
 	CHECK(set_if_down(sk),res,err);

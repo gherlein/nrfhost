@@ -1,7 +1,7 @@
 #include "util.h"
 
 int setmac(struct sockdata * sk, unsigned char *mac, size_t len){
-	sk->req.ifr_hwaddr.sa_family=AF_UNSPEC;
+	sk->req.ifr_hwaddr.sa_family=ARPHRD_NONE;
 	if(len>14)len=14; //max length limited
 	memcpy(sk->req.ifr_hwaddr.sa_data, mac, len);
 	if(ioctl(sk->sd,SIOCSIFHWADDR,&sk->req)<0)return -errno;

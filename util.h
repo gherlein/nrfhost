@@ -9,6 +9,7 @@
 #include <string.h>
 #include <linux/if.h>
 #include <linux/if_packet.h>
+#include <linux/if_arp.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "nrf24.h"
