@@ -27,7 +27,7 @@ ret:
 	free(sk);
 	return res;
 err:
-	perror("Error in scan: ");
+	perror("Error in scan");
 	goto ret;
 }
 

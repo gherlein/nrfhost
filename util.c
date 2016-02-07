@@ -40,7 +40,7 @@ struct sockdata * create_rawsocket(char *devicename, int protocol)
 err:
 	close(sk->sd);
 serr:
-	perror("Error in create_rawsocket: ");
+	perror("Error in create_rawsocket");
 	free(sk);
 	return NULL;
 }
