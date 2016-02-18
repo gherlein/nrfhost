@@ -32,4 +32,5 @@
 *.dSYM/
 
 nrfhost
+nrfprog
 scan
