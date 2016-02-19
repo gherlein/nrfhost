@@ -24,11 +24,11 @@ typedef enum {
 static	struct firmware fw;
 static 	state_t state=NOTCON;
 static struct sockdata *nrf;
-static 	char buf[32+1]={0x7a,0x7b,0x7c,0x7d,0x7e,
+static 	char buf[32+1]={PIPE_ADDRESS,
 			 0x5b,0x5b,0x5b,0x5b,0x5b,
 			 0x3c,0x6d,0x9e,0x5e}; //mac address
 			 
-static unsigned char len;
+static char len;
 static FILE* f;
 static	char fbuf[64];
 static unsigned short pos;
@@ -38,18 +38,16 @@ static inline int _send(void){ //send buf with len
 }
 
 static inline int _receive(void){ //received in buf with len
-	return read(nrf->sd,buf,sizeof(buf));
+	return len=read(nrf->sd,buf,sizeof(buf));
 }
 
 static void sendcmd(command_t cmd){
-	buf[0]=0;
 	buf[1]=cmd;
 	len=2;
 	PER(_send());
 }
 
 static void sendupstart(void){
-	buf[0]=0;
 	buf[1]=CMD_UPDATE_START;
 	buf[2]= (fw.end-fw.start)>>8;//bytes h
 	buf[3]=	(fw.end-fw.start)&0xff;//bytes l
@@ -71,7 +69,7 @@ static void sendhex(void){
 	do{
 		if(!fgets(fbuf, sizeof(fbuf), f))goto end;
 	}while(fbuf[0]!=':'||
-			fbuf[1]=='0'&&fbuf[2]=='3'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'); //skip reset vector
+			(fbuf[1]=='0'&&fbuf[2]=='3'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0'&&fbuf[3]=='0')); //skip reset vector
 	sscanf(fbuf, ":%02hhX%02hhX%02hhX%02hhX", buf+2, buf+3,buf+4,buf+5);
 	c_sum = buf[2] + buf[3] + buf[4] + buf[5];
 	if(buf[2]>0x10){
@@ -88,7 +86,6 @@ static void sendhex(void){
 	}
 	if(buf[5]==1 && buf[2]==0)goto end;
 		
-	buf[0]=0;
 	buf[1]=CMD_WRITE;
 	len=i+6;
 	PER(_send());
@@ -96,14 +93,12 @@ static void sendhex(void){
 end:
 	state=UPDATED;
 	fclose(f);
-	buf[0]=0;
 	buf[1]=CMD_UPDATE_COMPLETE;
 	len=2;
 	PER(_send());
 }
 
 static void sendread(void){
-	buf[0]=0;
 	buf[1]=CMD_READ;
 	buf[2]= fw.end-pos>0x10?0x10:fw.end-pos;//bytes, should <=0x10
 	buf[3]= pos>>8;//addr h
@@ -112,7 +107,7 @@ static void sendread(void){
 }
 
 int main(int argc, char * argv[]){
-	int ret,i=0;
+	int i=0;
 	bool boot=true;
 	//read in hex file, setup fw
 	
@@ -120,8 +115,8 @@ int main(int argc, char * argv[]){
 		PERR(hexfile_read(&fw,argv[1]));
 		f=fopen(argv[1],"r");
 		if(!f){
-			perror("Error reopen hex file");
-			return 0;
+			perror("Reopen hex file failed");
+			return -1;
 		}
 		fw.number=atoi(argv[2]);
 	}else{
@@ -131,21 +126,23 @@ int main(int argc, char * argv[]){
 	
 	nrf=nrf_socket("nrf0");
 	if(!nrf){
-		perror("socket open failed for nrf0");
+		perror("Socket open failed for nrf0");
 		return -1;
 	}
 	//set up nrf24 
+	PERR(set_if_down(nrf));
+	PERR(setmac(nrf,buf,14));
 	PERR(setpipes(nrf,0x1));
 	PERR(setchannel(nrf,channels[i]));
-	
-	
+	PERR(set_if_up(nrf));
 		
+	buf[0]=0; //set send pipe nubmer; should be hold all through
 	//send init
 	sendcmd(CMD_INIT);
 	while(boot){
-		PERR(ret=_receive())
-		if(ret==0){ //EOF
-			
+		PERR(_receive());
+		if(len==0){ //EOF
+			boot=false;
 		}else{
 			if(buf[1]==CMD_PING)sendcmd(CMD_PONG);
 			else if(buf[1]==CMD_NACK){
@@ -188,5 +185,6 @@ int main(int argc, char * argv[]){
 			}
 		}
 	}
-	close(nrf->sd);
+	set_if_down(nrf);
+	close_rawsocket(nrf);
 }

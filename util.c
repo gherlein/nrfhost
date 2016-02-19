@@ -1,6 +1,6 @@
 #include "util.h"
 
-int setmac(struct sockdata * sk, unsigned char *mac, size_t len){
+int setmac(struct sockdata * sk, char *mac, size_t len){
 	sk->req.ifr_hwaddr.sa_family=ARPHRD_NONE;
 	if(len>14)len=14; //max length limited
 	memcpy(sk->req.ifr_hwaddr.sa_data, mac, len);
@@ -43,6 +43,11 @@ serr:
 	perror("Error in create_rawsocket");
 	free(sk);
 	return NULL;
+}
+
+void close_rawsocket(struct sockdata * sk){
+	close(sk->sd);
+	free(sk);
 }
 
 int set_if_flags(struct sockdata * sk, short flags)

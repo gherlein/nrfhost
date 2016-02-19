@@ -6,7 +6,7 @@
 static unsigned char rpd[127];
 
 int scan(char * devname){
-	unsigned char mac[14]={0x7a,0x7a,0x7a,0x7a,0x7a,
+	char mac[14]={0x7a,0x7a,0x7a,0x7a,0x7a,
 			 0x5b,0x5b,0x5b,0x5b,0x5b,
 			 0x3c,0x6d,0x9e,0x5e};
 	int res;
@@ -22,12 +22,11 @@ int scan(char * devname){
 		CHECK(setchannel(sk,ch),res,err);
 		CHECK(set_if_up(sk),res,err);
 		sleep(1);
-		CHECK(getrpd(sk,rpd+ch),res,err);
 		CHECK(set_if_down(sk),res,err);
+		CHECK(getrpd(sk,rpd+ch),res,err);
 	}
 ret:
-	close(sk->sd);
-	free(sk);
+	close_rawsocket(sk);
 	return res;
 err:
 	perror("Error in scan");

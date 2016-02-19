@@ -58,7 +58,7 @@ typedef enum
 #define CHANNELS {2, 6, 81}
 #define CHANNELS_SIZE 3
 /* 5 byte prearranged pipe address */
-#define PIPE_ADDRESS {0xBA,0xDA,0x55,0x13,0x37}
+#define PIPE_ADDRESS 0xBA,0xDA,0x55,0x13,0x37
 
 
 #endif //PROTOCOL_RF_
