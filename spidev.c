@@ -8,8 +8,8 @@
 int spidev_msg(int fd, const char *txbuf, char * rxbuf, size_t len)
 {
 	struct spi_ioc_transfer	xfer={
-		.tx_buf=(uint64_t)txbuf,
-		.rx_buf=(uint64_t)rxbuf,
+		.tx_buf=(unsigned int)txbuf,
+		.rx_buf=(unsigned int)rxbuf,
 		.len=len,
 		};
 
