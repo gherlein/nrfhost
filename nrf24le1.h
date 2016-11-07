@@ -1,8 +1,6 @@
 #ifndef __NRF24LE1_H_
 #define __NRF24LE1_H_
 
-#define PIN_PROG	1
-#define PIN_RESET	2
 
 #define BLOCK_SZ		(512)
 #define FLASH_SZ		(32*BLOCK_SZ)
