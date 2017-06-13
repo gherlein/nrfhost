@@ -52,6 +52,7 @@ void close_rawsocket(struct sockdata * sk){
 
 int set_if_flags(struct sockdata * sk, short flags)
 {
+	sk->req.ifr_flags=flags;
 	if(ioctl(sk->sd, SIOCSIFFLAGS, &sk->req)<0)return -errno;
 	else return 0;
 }

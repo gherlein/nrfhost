@@ -12,5 +12,9 @@ scan:	scanchannel.c util.c
 	gcc ${CFLAGS} -o scan scanchannel.c util.c
 	sudo setcap cap_net_raw+ep scan 
 
+receiver: receiver.c util.c
+	gcc ${CFLAGS} -o receiver receiver.c util.c
+	sudo setcap cap_net_raw+ep receiver
+
 clean:
-	rm -f nrfhost scan nrfprog
+	rm -f nrfhost scan nrfprog receiver

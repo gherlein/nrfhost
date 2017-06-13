@@ -32,7 +32,7 @@ int __get_channel_or_pipes_or_rpd(struct sockdata * sk, int cmd, unsigned char *
 struct sockdata * create_rawsocket(char *devicename, int protocol);
 void close_rawsocket(struct sockdata * sk);
 static inline struct sockdata * nrf_socket(char *devicename){
-	return create_rawsocket(devicename,ETH_P_NRF24);
+	return create_rawsocket(devicename, ETH_P_NONE);
 }
 
 int set_if_flags(struct sockdata * sk, short flags);
